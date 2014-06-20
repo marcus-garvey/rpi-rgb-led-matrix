@@ -222,15 +222,15 @@ class Animation : public RGBMatrixManipulator {
 public:
   Animation(RGBMatrix *m) : RGBMatrixManipulator(m) {}
   void Run() {
-	PPMImage *image1 = new PPMImage("images/red1.ppm");
-	PPMImage *image2 = new PPMImage("images/red2.ppm");
-	PPMImage *image3 = new PPMImage("images/red3.ppm");
-	PPMImage *image4 = new PPMImage("images/red4.ppm");
-	PPMImage *image5 = new PPMImage("images/red5.ppm");
-	PPMImage *image6 = new PPMImage("images/red6.ppm");
-	PPMImage *image7 = new PPMImage("images/red7.ppm");
-	PPMImage *image8 = new PPMImage("images/red8.ppm");
-	PPMImage *cur = image1;
+	PPMImage *image[8];
+	image[0] = new PPMImage("images/red1.ppm");
+	image[1] = new PPMImage("images/red2.ppm");
+	image[2] = new PPMImage("images/red3.ppm");
+	image[3] = new PPMImage("images/red4.ppm");
+	image[4] = new PPMImage("images/red5.ppm");
+	image[5] = new PPMImage("images/red6.ppm");
+	image[6] = new PPMImage("images/red7.ppm");
+	image[7] = new PPMImage("images/red8.ppm");
         PPMImage *pac_full = new PPMImage("images/pac.ppm");
         PPMImage *pac_right_1 = new PPMImage("images/pac_right_1.ppm");
         PPMImage *pac_right_2 = new PPMImage("images/pac_right_2.ppm");
@@ -256,34 +256,6 @@ public:
         bool dir_rev = false;
 	while(running_)
 	{
-	   switch(count)
-	   {
-	   case 0:
-	     cur = image1;
-	     break;
-	   case 1:
-	     cur = image2;
-	     break;
-	   case 2:
-	     cur = image3;
-	     break;
-	   case 3:
-	     cur = image4;
-	     break;
-	   case 4:
-	     cur = image5;
-	     break;
-	   case 5:
-	     cur = image6;
-	     break;
-	   case 6:
-	     cur = image7;
-	     break;
-           default:
-             cur = image8;
-	     count = -1;
-             break;
-	   }
 	   count2++;
            count3++;
 	   if(count2 > 3)
@@ -291,6 +263,7 @@ public:
 	     count2 =0;
 	     count++;
 	     pac_image++;
+	     if(count > 7) count = 0;
 	     if(pac_image > 3) pac_image = 0;
 	   }
 
@@ -309,7 +282,7 @@ public:
 	   int pac_off = dir_rev ? 20 : 0 ;
 	   int red_off = dir_rev ? 0 : 20;
 
-	   cur->drawImage(matrix_,red_off + pos,0);
+	   image[count]->drawImage(matrix_,red_off + pos,0);
 	   if(dir_rev)
 	     pac_l[pac_image]->drawImage(matrix_,pac_off + pos,0);
 	   else
