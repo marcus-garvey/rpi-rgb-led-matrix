@@ -32,7 +32,7 @@ POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "Adafruit_GFX.h"
-#include "glcdfont.c"
+#include "glcdfont.h"
 
 #include <math.h>
 #include <stdlib.h>

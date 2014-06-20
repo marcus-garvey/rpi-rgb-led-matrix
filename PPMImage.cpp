@@ -50,7 +50,7 @@ const PPMImage::Pixel& PPMImage::getPixel(int x, int y)
 
 char * PPMImage::readLine(FILE *f, char *buffer, size_t len)
 {
-	char *result;
+    char *result;
     do {
       result = fgets(buffer, len, f);
     } while (result != NULL && result[0] == '#');
@@ -59,11 +59,11 @@ char * PPMImage::readLine(FILE *f, char *buffer, size_t len)
 
 void PPMImage::drawImage(RGBMatrix* matrix,int pos_x , int pos_y)
 {
-	for (int x = 0; x < width_; ++x) {
-        	for (int y = 0; y < height_; ++y) {
+    for (int x = 0; x < width_; ++x) {
+      	for (int y = 0; y < height_; ++y) {
 			
-			const Pixel &p = getPixel(x, y);
-			matrix->SetPixel(pos_x + x, pos_y +y, p.red, p.green, p.blue);
-		}
+	    const Pixel &p = getPixel(x, y);
+	    matrix->SetPixel(pos_x + x, pos_y +y, p.red, p.green, p.blue);
 	}
+    }
 }
