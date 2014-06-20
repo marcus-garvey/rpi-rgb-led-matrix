@@ -9,66 +9,12 @@
 #include "led-matrix.h"
 #include "PPMImage.h"
 #include "RGBMatrixManipulator.h"
+#include "TestDrawers.h"
 using std::min;
 using std::max;
 
 
 
-class SimpleSquare : public RGBMatrixManipulator {
-public:
-  SimpleSquare(RGBMatrix *m) : RGBMatrixManipulator(m) {}
-  void Run() {
-    const int width = matrix_->width();
-    const int height = matrix_->height();
-    // Diagonaly
-    for (int x = 0; x < width; ++x) {
-        matrix_->SetPixel(x, x, 255, 255, 255);
-        matrix_->SetPixel(height -1 - x, x, 255, 0, 255);
-    }
-    for (int x = 0; x < width; ++x) {
-      matrix_->SetPixel(x, 0, 255, 0, 0);
-      matrix_->SetPixel(x, height - 1, 255, 255, 0);
-    }
-    for (int y = 0; y < height; ++y) {
-      matrix_->SetPixel(0, y, 0, 0, 255);
-      matrix_->SetPixel(width - 1, y, 0, 255, 0);
-    }
-    matrix_->SwapScreen();
-  }
-};
-
-// Simple generator that pulses through RGB and White.
-class ColorPulseGenerator : public RGBMatrixManipulator {
-public:
-  ColorPulseGenerator(RGBMatrix *m) : RGBMatrixManipulator(m) {}
-  void Run() {
-    const int width = matrix_->width();
-    const int height = matrix_->height();
-    uint32_t count = 0;
-    while (running_) {
-      usleep(5000);
-      ++count;
-      int color = (count >> 9) % 6;
-      int value = count & 0xFF;
-      if (count & 0x100) value = 255 - value;
-      int r, g, b;
-      switch (color) {
-      case 0: r = value; g = b = 0; break;
-      case 1: r = g = value; b = 0; break;
-      case 2: g = value; r = b = 0; break;
-      case 3: g = b = value; r = 0; break;
-      case 4: b = value; r = g = 0; break;
-      default: r = g = b = value; break;
-      }
-//      for (int x = 0; x < width; ++x)
-//        for (int y = 0; y < height; ++y)
-//          matrix_->SetPixel(x, y, r, g, b);
-
-      matrix_->fillRect(0,0,64,16,matrix_->Color888(r,g,b));
-      matrix_->SwapScreen();
-    }
-  }
-};
 
 class SimpleText : public RGBMatrixManipulator {
 public:
