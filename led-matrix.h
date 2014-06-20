@@ -8,7 +8,7 @@
 #include "gpio.h"
 #include "Adafruit_GFX.h"
 
-#define CHAINED_BOARDS 2
+//define CHAINED_BOARDS 2
 #define BOARD_WIDTH_X 32
 #define BORAD_HEIGHT_Y 16
 

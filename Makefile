@@ -1,4 +1,4 @@
-CFLAGS  = -Wall -g 
+CFLAGS  = -Wall -g -DCHAINED_BOARDS=2
 LDFLAGS = -lrt -lm -lpthread 
 BINARIES= ledmatrix
 OBJ = main.o Adafruit_GFX.o led-matrix.o gpio.o thread.o PPMImage.o RGBMatrixManipulator.o TestDrawers.o DrawSimpleText.o DrawRedAlert.o DrawAnimation.o
