@@ -1,7 +1,7 @@
 CFLAGS  = -Wall -g 
 LDFLAGS = -lrt -lm -lpthread 
 BINARIES= ledmatrix
-OBJ = main.o Adafruit_GFX.o led-matrix.o gpio.o thread.o PPMImage.o RGBMatrixManipulator.o TestDrawers.o
+OBJ = main.o Adafruit_GFX.o led-matrix.o gpio.o thread.o PPMImage.o RGBMatrixManipulator.o TestDrawers.o DrawSimpleText.o DrawRedAlert.o DrawAnimation.o
 all: $(BINARIES)
 
 ledmatrix: $(OBJ)
