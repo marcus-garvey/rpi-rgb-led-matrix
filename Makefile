@@ -1,16 +1,17 @@
-CFLAGS=-Wall -O3 -g
-CXXFLAGS=-Wall -O3 -g
-OBJECTS=main.o gpio.o led-matrix.o thread.o
-BINARIES=led-matrix
-LDFLAGS=-lrt -lm -lpthread
+CFLAGS  = -Wall -g 
+LDFLAGS = -lrt -lm -lpthread 
+BINARIES= ledmatrix
+OBJ = main.o Adafruit_GFX.o led-matrix.o gpio.o thread.o PPMImage.o
+all: $(BINARIES)
 
-all : $(BINARIES)
+ledmatrix: $(OBJ)
+	$(CXX) $(CFLAGS) -o ledmatrix $(OBJ) $(LDFLAGS)
 
-led-matrix.o: led-matrix.cc led-matrix.h
-main.o: led-matrix.h
+%.o: %.cpp
+	$(CXX) $(CFLAGS) -c $<
 
-led-matrix : $(OBJECTS)
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+%.o: %.cc
+	$(CXX) $(CFLAGS) -c $<
 
 clean:
-	rm -f $(OBJECTS) $(BINARIES)
+	rm -f $(OBJ) $(BINARIES)

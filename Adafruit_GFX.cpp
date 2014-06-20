@@ -33,11 +33,16 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include "Adafruit_GFX.h"
 #include "glcdfont.c"
+
+#include <math.h>
+#include <stdlib.h>
+
 #ifdef __AVR__
  #include <avr/pgmspace.h>
 #else
  #define pgm_read_byte(addr) (*(const unsigned char *)(addr))
 #endif
+
 
 Adafruit_GFX::Adafruit_GFX(int16_t w, int16_t h):
   WIDTH(w), HEIGHT(h)
@@ -360,6 +365,13 @@ void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
 	drawPixel(x+i, y+j, color);
       }
     }
+  }
+}
+
+void Adafruit_GFX::write(const uint8_t *buffer, size_t size)
+{
+  while (size--) {
+    write(*buffer++);
   }
 }
 

@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
+#include <unistd.h>
 #include "gpio.h"
 
 // Clocking in a row takes about 3.4usec (TODO: this is actually per board)
@@ -55,7 +55,12 @@ static void sleep_nanos(long nanos) {
   }
 }
 
-RGBMatrix::RGBMatrix(GPIO *io) : io_(io) {
+RGBMatrix::RGBMatrix(GPIO *io ) : 
+ Adafruit_GFX(CHAINED_BOARDS * BOARD_WIDTH_X,BORAD_HEIGHT_Y),
+ io_(io),
+ backindex_(0),
+ swapbuffer_(false)
+{
   // Tell GPIO about all bits we intend to use.
   IoBits b;
   b.raw = 0;
@@ -71,14 +76,30 @@ RGBMatrix::RGBMatrix(GPIO *io) : io_(io) {
   ClearScreen();
 }
 
-void RGBMatrix::ClearScreen() {
-  memset(&bitplane_, 0, sizeof(bitplane_));
+
+// Demote 8/8/8 to Adafruit_GFX 5/6/5
+// If no gamma flag passed, assume linear color
+uint16_t RGBMatrix::Color888(uint8_t r, uint8_t g, uint8_t b) {
+  return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8 ) >> 3);
+  //return ((r & 0xF8) << 11) | ((g & 0xFC) << 5) | (b >> 3);
 }
 
+void RGBMatrix::ClearScreen() {
+  memset(&bitplane_[1 - backindex_], 0, sizeof(bitplane_[1 - backindex_]));
+}
+void RGBMatrix::drawPixel(int16_t x, int16_t y, uint16_t c) {
+
+  // Adafruit_GFX uses 16-bit color in 5/6/5 format, while matrix needs
+  // 4/4/4.  Pluck out relevant bits while separating into R,G,B:
+  uint8_t r =  c >> 11;        // RRRRrggggggbbbbb
+  uint8_t g = (c >>  5) & 0xFC; // rrrrrGGGGggbbbbb
+  uint8_t b = c  & 0x1F; // rrrrrggggggBBBBb
+
+  SetPixel(x,y,r <<3,g <<2,b << 3);
+}
 void RGBMatrix::SetPixel(uint8_t x, uint8_t y,
                          uint8_t red, uint8_t green, uint8_t blue) {
   if (x >= width() || y >= height()) return;
-
   // My setup: A single panel connected  [>] 16 rows & 32 columns.
   
   // TODO: re-map values to be luminance corrected (sometimes called 'gamma').
@@ -92,7 +113,7 @@ void RGBMatrix::SetPixel(uint8_t x, uint8_t y,
 
   for (int b = 0; b < kPWMBits; ++b) {
     uint8_t mask = 1 << b;
-    IoBits *bits = &bitplane_[b].row[y & 0x7].column[x];  // 8 rows, 0-based
+    IoBits *bits = &bitplane_[1 - backindex_][b].row[y & 0x7].column[x];  // 8 rows, 0-based
     if (y < 8) {    // Upper sub-panel. - 16 actual rows; 8 high & 8 low
       bits->bits.r1 = (red & mask) == mask;
       bits->bits.g1 = (green & mask) == mask;
@@ -105,7 +126,27 @@ void RGBMatrix::SetPixel(uint8_t x, uint8_t y,
   }
 }
 
-void RGBMatrix::UpdateScreen() {
+void RGBMatrix::SwapScreen(bool wait)
+{
+  swapbuffer_ = true;
+ 
+  if(!wait) return;
+
+  while(swapbuffer_)
+  {
+     usleep(100);
+  }
+}
+
+void RGBMatrix::UpdateScreen()
+{
+  if(swapbuffer_)
+  {
+    backindex_ = 1 - backindex_;
+    swapbuffer_ = false;
+  }
+
+
   IoBits serial_mask;   // Mask of bits we need to set while clocking in.
   serial_mask.bits.r1 = serial_mask.bits.g1 = serial_mask.bits.b1 = 1;
   serial_mask.bits.r2 = serial_mask.bits.g2 = serial_mask.bits.b2 = 1;
@@ -124,7 +165,7 @@ void RGBMatrix::UpdateScreen() {
     // Rows can't be switched very quickly without ghosting, so we do the
     // full PWM of one row before switching rows.
     for (int b = 0; b < kPWMBits; ++b) {
-      const DoubleRow &rowdata = bitplane_[b].row[row];
+      const DoubleRow &rowdata = bitplane_[backindex_][b].row[row];
 
       // Clock in the row. The time this takes is the smalles time we can
       // leave the LEDs on, thus the smallest time-constant we can use for

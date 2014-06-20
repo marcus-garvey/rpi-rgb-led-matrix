@@ -6,32 +6,40 @@
 
 #include <stdint.h>
 #include "gpio.h"
+#include "Adafruit_GFX.h"
 
-class RGBMatrix {
+#define CHAINED_BOARDS 2
+#define BOARD_WIDTH_X 32
+#define BORAD_HEIGHT_Y 16
+
+class RGBMatrix : public Adafruit_GFX {
  public:
   RGBMatrix(GPIO *io);
   void ClearScreen();
 
-  // Here the set-up  [>] - Only one 16x32 panel
-  int width() const { return 32; }
-  int height() const { return 16; }
-  void SetPixel(uint8_t x, uint8_t y,
-                uint8_t red, uint8_t green, uint8_t blue);
-
+  int width() const { return CHAINED_BOARDS * BOARD_WIDTH_X; }
+  int height() const { return BORAD_HEIGHT_Y; }
+  void drawPixel(int16_t x, int16_t y, uint16_t c);
+  void SetPixel(uint8_t x, uint8_t y, uint8_t red, uint8_t green, uint8_t blue);
+uint16_t
+    Color888(uint8_t r, uint8_t g, uint8_t b);
   // Updates the screen once. Call this in a continous loop in some realtime
   // thread.
   void UpdateScreen();
-
+  void SwapScreen(bool wait = true);
 
 private:
   GPIO *const io_;
+  int backindex_;
+  bool swapbuffer_;
 
   enum {
     kDoubleRows = 8,     // Physical constant of the used board.
-    kChainedBoards = 1,   // Number of boards that are daisy-chained.
-    kColumns = kChainedBoards * 32,
+    kChainedBoards = CHAINED_BOARDS,   // Number of boards that are daisy-chained.
+    kColumns = kChainedBoards * BOARD_WIDTH_X,
     kPWMBits = 4          // maximum PWM resolution.
   };
+
 
   union IoBits {
     struct {
@@ -63,7 +71,7 @@ private:
     DoubleRow row[kDoubleRows];
   };
 
-  Screen bitplane_[kPWMBits];
+  Screen bitplane_[2][kPWMBits];
 };
 
 #endif  // RPI_RGBMATRIX_H
