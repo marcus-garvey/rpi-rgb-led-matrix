@@ -5,8 +5,8 @@
 
 class DrawAnimation : public RGBMatrixManipulator {
 public:
-  DrawAnimation(RGBMatrix *m) : RGBMatrixManipulator(m) {}
-  void Run();
+	DrawAnimation(RGBMatrix *m) : RGBMatrixManipulator(m) {}
+	void Run();
 };
 
 #endif

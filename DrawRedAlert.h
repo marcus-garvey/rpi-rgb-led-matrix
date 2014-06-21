@@ -5,8 +5,8 @@
 
 class DrawRedAlert : public RGBMatrixManipulator {
 public:
-  DrawRedAlert(RGBMatrix *m) : RGBMatrixManipulator(m) {}
-  void Run();
+	DrawRedAlert(RGBMatrix *m) : RGBMatrixManipulator(m) {}
+	void Run();
 };
 
 
