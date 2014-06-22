@@ -42,7 +42,21 @@ void ColorPulseGenerator::Run() {
       default: r = g = b = value; break;
       }
 
-      matrix_->fillRect(0,0,width,height,matrix_->Color888(r,g,b));
+      matrix_->fillRect(0,0,width,height,matrix_->Color888Gamma(r,g,b));
+      matrix_->SwapScreen();
+    }
+}
+
+void ColorPulseGeneratorHSV::Run() {
+    const int width = matrix_->width();
+    const int height = matrix_->height();
+    uint32_t count = 0;
+    while (running_) {
+      usleep(5000);
+      count += 7;
+
+	  if(count >= 1536) count -= 1536;
+      matrix_->fillRect(0,0,width,height,matrix_->ColorHSV(count, 255, 255, true));
       matrix_->SwapScreen();
     }
 }

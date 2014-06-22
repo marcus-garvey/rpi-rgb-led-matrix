@@ -16,5 +16,10 @@ public:
   void Run();
 };
 
-
+// Simple generator that pulses through RGB and White.
+class ColorPulseGeneratorHSV : public RGBMatrixManipulator {
+public:
+  ColorPulseGeneratorHSV(RGBMatrix *m) : RGBMatrixManipulator(m) {}
+  void Run();
+};
 #endif

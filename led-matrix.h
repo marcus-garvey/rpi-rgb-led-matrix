@@ -43,6 +43,8 @@ public:
 	void drawPixel(int16_t x, int16_t y, uint16_t c);
 	void SetPixel(uint8_t x, uint8_t y, uint8_t red, uint8_t green, uint8_t blue);
 	uint16_t Color888(uint8_t r, uint8_t g, uint8_t b);
+	uint16_t Color888Gamma(uint8_t r, uint8_t g, uint8_t b) ;
+	uint16_t ColorHSV(long hue, uint8_t sat, uint8_t val, boolean gflag = true);
 	// Updates the screen once. Call this in a continous loop in some realtime
 	// thread.
 	void UpdateScreen();

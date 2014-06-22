@@ -54,6 +54,9 @@ int main( int argc, const char* argv[] )
 	case 4:
 		image_gen = new DrawAnimation(&m);
 		break;
+	case 5:
+		image_gen = new ColorPulseGeneratorHSV(&m);
+		break;
 	default:
 		printf( "\nNothing todo\n\n" );
 		exit(0);
