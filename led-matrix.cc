@@ -56,7 +56,7 @@ static void sleep_nanos(long nanos) {
 	}
 }
 
-int RGBMatrix::width() 
+int RGBMatrix::displayWidth() 
 {
 	if(panelSetup == LeftToRightHalfUpToDown)
 	{
@@ -70,7 +70,7 @@ int RGBMatrix::width()
 	return kPanelColumns *  kChainedBoards;
 }
 
-int RGBMatrix::height() 
+int RGBMatrix::displayHeight() 
 {
 	if(panelSetup == LeftToRightHalfUpToDown)
 	{
@@ -85,12 +85,12 @@ int RGBMatrix::height()
 }
 
 RGBMatrix::RGBMatrix(GPIO *io ) : 
-Adafruit_GFX(width(),height()),
+Adafruit_GFX(displayWidth(),displayHeight()),
 io_(io),
 backindex_(0),
 swapbuffer_(false)
 {
-	printf("Create x=%d y=%d display\n",width(),height());
+	printf("Create x=%d y=%d display\n",displayWidth(),displayHeight());
 	// Tell GPIO about all bits we intend to use.
 	IoBits b;
 	b.raw = 0;
@@ -129,9 +129,32 @@ void RGBMatrix::drawPixel(int16_t x, int16_t y, uint16_t c) {
 
 	SetPixel(x,y,r <<3,g <<2,b << 3);
 }
-void RGBMatrix::SetPixel(uint8_t x, uint8_t y, uint8_t red, uint8_t green, uint8_t blue) 
+
+void RGBMatrix::SetPixel(uint8_t x, uint8_t y, uint8_t red, uint8_t green, uint8_t blue)
 {
-	if (x >= width() || y >= height()) return;
+
+	// here we calc the rotation
+	switch(rotation) {
+	case 1:
+		swap(x, y);
+		x = WIDTH  - 1 - x;
+		break;
+	case 2:
+		x = WIDTH  - 1 - x;
+		y = HEIGHT - 1 - y;
+		break;
+	case 3:
+		swap(x, y);
+		y = HEIGHT - 1 - y;
+		break;
+	}
+		
+	internalSetPixel(x,y,red,green,blue);
+}
+
+void RGBMatrix::internalSetPixel(uint8_t x, uint8_t y, uint8_t red, uint8_t green, uint8_t blue) 
+{
+	if (x >= displayWidth() || y >= displayHeight()) return;
 	// My setup: A single panel connected  [>] 16 rows & 32 columns.
 	uint8_t coord_x = x;
 	uint8_t coord_y = y;

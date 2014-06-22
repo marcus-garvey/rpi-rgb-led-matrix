@@ -20,8 +20,13 @@ using std::max;
 int main( int argc, const char* argv[] )
 {
 	int demo = 0;
+	int rot = 0;
 	if (argc > 1) {
 		demo = atoi(argv[1]);
+	}
+	
+	if (argc > 2) {
+		rot = atoi(argv[2]);
 	}
 	fprintf(stderr, "Using demo %d\n", demo);
 
@@ -30,6 +35,8 @@ int main( int argc, const char* argv[] )
 	return 1;
 
 	RGBMatrix m(&io);
+	
+	m.setRotation(rot);
 	RGBMatrixManipulator *image_gen = NULL; 
 	switch(demo) {
 	case 0:

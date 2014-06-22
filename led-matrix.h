@@ -32,8 +32,8 @@ public:
 	const static int kPWMBits = 4;
 	
 	
-	static int width(); //{ return kColumns; }
-	static int height(); //{ return BORAD_HEIGHT_Y; }
+	static int displayWidth(); //{ return kColumns; }
+	static int displayHeight(); //{ return BORAD_HEIGHT_Y; }
 	
 	RGBMatrix(GPIO *io);
 	~RGBMatrix();
@@ -49,6 +49,8 @@ public:
 	void SwapScreen(bool wait = true);
 
 private:
+	
+	void internalSetPixel(uint8_t x, uint8_t y, uint8_t red, uint8_t green, uint8_t blue);
 	
 	union IoBits {
 		struct {
