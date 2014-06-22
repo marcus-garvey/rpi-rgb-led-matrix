@@ -23,8 +23,8 @@ void SimpleSquare::Run() {
 }
 
 void ColorPulseGenerator::Run() {
-//    const int width = matrix_->width();
-//    const int height = matrix_->height();
+    const int width = matrix_->width();
+    const int height = matrix_->height();
     uint32_t count = 0;
     while (running_) {
       usleep(5000);
@@ -42,7 +42,7 @@ void ColorPulseGenerator::Run() {
       default: r = g = b = value; break;
       }
 
-      matrix_->fillRect(0,0,64,16,matrix_->Color888(r,g,b));
+      matrix_->fillRect(0,0,width,height,matrix_->Color888(r,g,b));
       matrix_->SwapScreen();
     }
 }

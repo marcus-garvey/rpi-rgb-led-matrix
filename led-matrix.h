@@ -10,37 +10,46 @@
 
 //define CHAINED_BOARDS 2
 #define BOARD_WIDTH_X 32
-#define BORAD_HEIGHT_Y 16
+#define BOARD_HEIGHT_Y 16
 
 class RGBMatrix : public Adafruit_GFX {
 public:
+	// display configuration
+	// 
+	enum PanelSetup {
+		LeftToRight,
+		LeftToRightHalfUpToDown,
+		UpToDown
+	};
+	// some general setup constants
+    const static int kPanelRows = BOARD_HEIGHT_Y;
+	const static int kPanelColumns = BOARD_WIDTH_X;
+	const static int kChainedBoards = CHAINED_BOARDS;
+	const static PanelSetup panelSetup = LeftToRightHalfUpToDown;
+	// hardware setup of the display memory
+	const static int kDoubleRows = 8;
+	const static int kColumns = kChainedBoards * kPanelColumns;
+	const static int kPWMBits = 4;
+	
+	
+	static int width(); //{ return kColumns; }
+	static int height(); //{ return BORAD_HEIGHT_Y; }
+	
 	RGBMatrix(GPIO *io);
+	~RGBMatrix();
+	
 	void ClearScreen();
 
-	int width() const { return CHAINED_BOARDS * BOARD_WIDTH_X; }
-	int height() const { return BORAD_HEIGHT_Y; }
 	void drawPixel(int16_t x, int16_t y, uint16_t c);
 	void SetPixel(uint8_t x, uint8_t y, uint8_t red, uint8_t green, uint8_t blue);
-	uint16_t
-	Color888(uint8_t r, uint8_t g, uint8_t b);
+	uint16_t Color888(uint8_t r, uint8_t g, uint8_t b);
 	// Updates the screen once. Call this in a continous loop in some realtime
 	// thread.
 	void UpdateScreen();
 	void SwapScreen(bool wait = true);
 
 private:
-	GPIO *const io_;
-	int backindex_;
-	bool swapbuffer_;
-
-	enum {
-		kDoubleRows = 8,     // Physical constant of the used board.
-		kChainedBoards = CHAINED_BOARDS,   // Number of boards that are daisy-chained.
-		kColumns = kChainedBoards * BOARD_WIDTH_X,
-		kPWMBits = 4          // maximum PWM resolution.
-	};
-
-
+	
 	union IoBits {
 		struct {
 			unsigned int unused1 : 2;  // 0..1
@@ -64,6 +73,8 @@ private:
 
 	// A double row represents row n and n+8. The physical layout of the
 	// 16x32 RGB is two sub-panels with 32 columns and 8 rows.
+	// A double row represents row n and n+8. The physical layout of the
+	// 16x32 RGB is two sub-panels with 32 columns and 8 rows.
 	struct DoubleRow {
 		IoBits column[kColumns];  // only color bits are set
 	};
@@ -71,7 +82,12 @@ private:
 		DoubleRow row[kDoubleRows];
 	};
 
+	
 	Screen bitplane_[2][kPWMBits];
+	GPIO *const io_;
+	int backindex_;
+	bool swapbuffer_;
+	
 };
 
 #endif  // RPI_RGBMATRIX_H

@@ -21,6 +21,7 @@
 // substract that from the row sleep time.
 static const int kRowClockTime = 3400;
 static const int kBaseTime = kRowClockTime;  // smallest possible value.
+	
 
 const long row_sleep_nanos[8] = {   // Only using the first kPWMBits elements.
 	(1 * kBaseTime) - kRowClockTime,
@@ -55,12 +56,41 @@ static void sleep_nanos(long nanos) {
 	}
 }
 
+int RGBMatrix::width() 
+{
+	if(panelSetup == LeftToRightHalfUpToDown)
+	{
+		return kPanelColumns * (kChainedBoards/2);
+	}
+	else if(panelSetup == UpToDown)
+	{
+		return kPanelColumns;
+	}
+	// LeftToRight
+	return kPanelColumns *  kChainedBoards;
+}
+
+int RGBMatrix::height() 
+{
+	if(panelSetup == LeftToRightHalfUpToDown)
+	{
+		return kPanelRows * 2;
+	}
+	else if(panelSetup == UpToDown)
+	{
+		return kPanelRows * kChainedBoards;
+	}
+	// LeftToRight
+	return kPanelRows;
+}
+
 RGBMatrix::RGBMatrix(GPIO *io ) : 
-Adafruit_GFX(CHAINED_BOARDS * BOARD_WIDTH_X,BORAD_HEIGHT_Y),
+Adafruit_GFX(width(),height()),
 io_(io),
 backindex_(0),
 swapbuffer_(false)
 {
+	printf("Create x=%d y=%d display\n",width(),height());
 	// Tell GPIO about all bits we intend to use.
 	IoBits b;
 	b.raw = 0;
@@ -76,7 +106,9 @@ swapbuffer_(false)
 	ClearScreen();
 }
 
-
+RGBMatrix::~RGBMatrix()
+{
+}
 // Demote 8/8/8 to Adafruit_GFX 5/6/5
 // If no gamma flag passed, assume linear color
 uint16_t RGBMatrix::Color888(uint8_t r, uint8_t g, uint8_t b) {
@@ -97,11 +129,46 @@ void RGBMatrix::drawPixel(int16_t x, int16_t y, uint16_t c) {
 
 	SetPixel(x,y,r <<3,g <<2,b << 3);
 }
-void RGBMatrix::SetPixel(uint8_t x, uint8_t y,
-uint8_t red, uint8_t green, uint8_t blue) {
+void RGBMatrix::SetPixel(uint8_t x, uint8_t y, uint8_t red, uint8_t green, uint8_t blue) 
+{
 	if (x >= width() || y >= height()) return;
 	// My setup: A single panel connected  [>] 16 rows & 32 columns.
-
+	uint8_t coord_x = x;
+	uint8_t coord_y = y;
+	if(panelSetup == LeftToRightHalfUpToDown)
+	{
+		int halfChainedPanel = kChainedBoards /2;
+		if(coord_y >= kPanelRows)
+		{
+			int panel = (y / kPanelRows) * halfChainedPanel; 
+			coord_y = (y % kPanelRows);
+			coord_x = (panel * kPanelColumns) + x;
+			// now flipp
+			coord_y = (kPanelRows -1) - coord_y;
+			coord_x = kPanelColumns * (panel+1) - (coord_x % kPanelColumns) -1;
+		}
+	}
+	else if(panelSetup == UpToDown)
+	{
+		int panel = (y / kPanelRows); 
+		//printf("Panel %d\n" , panel);
+		// x = 0 & y = 15 -> x = 0 & y = 15
+		// x = 0 & y = 32 -> x = 64 & y = 0  //  pos not flipped
+		// x = 1 & y = 32 -> x = 65 & y = 0  //  pos not flipped
+		coord_y = (y % kPanelRows);
+		coord_x = (panel * kPanelColumns) + x;
+		//printf("Org Coord  x=%d y=%d Calc Coord x=%d y=%d\n",x,y,coord_x,coord_y);
+		if(!(panel == 0 || (panel % 2) == 0))
+		{
+			// x = 0 & y = 16 -> x = 63 & y = 15 //  pos flipped
+			// x = 1 & y = 48 -> x = ? & y = ? // 
+			coord_y = (kPanelRows -1) - coord_y;
+			coord_x = kPanelColumns * (panel+1) - (coord_x % kPanelColumns) -1;
+			//printf("Flipped Calc Coord x=%d y=%d\n",coord_x,coord_y);
+		}
+	
+	}
+	//usleep(100*1000);
 	// TODO: re-map values to be luminance corrected (sometimes called 'gamma').
 	// Ideally, we had like 10PWM bits for this, but we're too slow for that :/
 
@@ -113,8 +180,8 @@ uint8_t red, uint8_t green, uint8_t blue) {
 
 	for (int b = 0; b < kPWMBits; ++b) {
 		uint8_t mask = 1 << b;
-		IoBits *bits = &bitplane_[1 - backindex_][b].row[y & 0x7].column[x];  // 8 rows, 0-based
-		if (y < 8) {    // Upper sub-panel. - 16 actual rows; 8 high & 8 low
+		IoBits *bits = &bitplane_[1 - backindex_][b].row[coord_y & 0x7].column[coord_x];  // 8 rows, 0-based
+		if (coord_y < 8) {    // Upper sub-panel. - 16 actual rows; 8 high & 8 low
 			bits->bits.r1 = (red & mask) == mask;
 			bits->bits.g1 = (green & mask) == mask;
 			bits->bits.b1 = (blue & mask) == mask;
