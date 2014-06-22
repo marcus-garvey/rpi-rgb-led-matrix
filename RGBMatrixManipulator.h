@@ -6,14 +6,14 @@
 // Base-class for a Thread that does something with a matrix.
 class RGBMatrixManipulator : public Thread {
 public:
-	RGBMatrixManipulator(RGBMatrix *m) : running_(true), matrix_(m) {}
-	virtual ~RGBMatrixManipulator() { running_ = false; }
+    RGBMatrixManipulator(RGBMatrix *m) : running_(true), matrix_(m) {}
+    virtual ~RGBMatrixManipulator() { running_ = false; }
 
-	// Run() implementation needs to check running_ regularly.
+    // Run() implementation needs to check running_ regularly.
 
 protected:
-	volatile bool running_;  // TODO: use mutex, but this is good enough for now.
-	RGBMatrix *const matrix_;
+    volatile bool running_;  // TODO: use mutex, but this is good enough for now.
+    RGBMatrix *const matrix_;
 };
 
 
@@ -21,13 +21,13 @@ protected:
 // here will make the PWM uneven.
 class DisplayUpdater : public RGBMatrixManipulator {
 public:
-	DisplayUpdater(RGBMatrix *m) : RGBMatrixManipulator(m) {}
+    DisplayUpdater(RGBMatrix *m) : RGBMatrixManipulator(m) {}
 
-	void Run() {
-		while (running_) {
-			matrix_->UpdateScreen();
-		}
-	}
+    void Run() {
+        while (running_) {
+            matrix_->UpdateScreen();
+        }
+    }
 };
 
 
