@@ -251,12 +251,11 @@ void RGBMatrix::internalSetPixel(uint8_t x, uint8_t y, uint8_t red, uint8_t gree
         int halfChainedPanel = kChainedBoards /2;
         if(coord_y >= kPanelRows)
         {
-            int panel = (y / kPanelRows) * halfChainedPanel; 
             coord_y = (y % kPanelRows);
-            coord_x = (panel * kPanelColumns) + x;
+            coord_x = (halfChainedPanel * kPanelColumns) + x;
             // now flipp
-            coord_y = (kPanelRows -1) - coord_y;
-            coord_x = kPanelColumns * (panel+1) - (coord_x % kPanelColumns) -1;
+            coord_y = (kPanelRows  -1) - coord_y;
+            coord_x = (kPanelColumns * kChainedBoards) - (coord_x % ( kPanelColumns * halfChainedPanel)) -1;
         }
     }
     else if(panelSetup == UpToDown)
