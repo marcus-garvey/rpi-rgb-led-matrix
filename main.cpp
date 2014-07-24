@@ -13,6 +13,8 @@
 #include "DrawSimpleText.h"
 #include "DrawRedAlert.h"
 #include "DrawAnimation.h"
+#include "DrawScroller.h"
+#include "DrawDPAC.h"
 using std::min;
 using std::max;
 
@@ -21,12 +23,18 @@ int main( int argc, const char* argv[] )
 {
     int demo = 0;
     int rot = 0;
+    const char* filename = NULL;
     if (argc > 1) {
         demo = atoi(argv[1]);
     }
     
     if (argc > 2) {
         rot = atoi(argv[2]);
+    }
+
+    if(argc > 3)
+    {
+	filename = argv[3];
     }
     fprintf(stderr, "Using demo %d\n", demo);
 
@@ -36,7 +44,7 @@ int main( int argc, const char* argv[] )
 
     RGBMatrix m(&io);
     
-    m.setRotation(rot);
+    //m.setRotation(rot);
     RGBMatrixManipulator *image_gen = NULL; 
     switch(demo) {
     case 0:
@@ -57,6 +65,12 @@ int main( int argc, const char* argv[] )
     case 5:
         image_gen = new ColorPulseGeneratorHSV(&m);
         break;
+    case 6:
+	image_gen = new DrawScroller(&m, filename);
+	break;
+    case 7:
+	image_gen = new DrawDPAC(&m);
+	break;
     default:
         printf( "\nNothing todo\n\n" );
         exit(0);
@@ -67,10 +81,19 @@ int main( int argc, const char* argv[] )
     updater->Start(10);  // high priority
     if(image_gen != NULL)
     image_gen->Start();
-
-    // Things are set up. Just wait for <RETURN> to be pressed.
-    printf("Press <RETURN> to exit and reset LEDs\n");
-    getchar();
+    if(rot > 0)
+    {
+    	// Things are set up. Just wait for <RETURN> to be pressed.
+    	printf("Press <RETURN> to exit and reset LEDs\n");
+    	getchar();
+    }
+    else
+    {
+	while(!image_gen->isDone())
+	{
+	    usleep(10000);
+	}
+    }	
 
     // Stopping threads and wait for them to join.
     if(image_gen != NULL)

@@ -58,12 +58,15 @@ void DrawAnimation::Run() {
         }
 
         if(pos == -40) dir_rev = false;
-        if(pos == 66) dir_rev = true;
+        if(pos == 100) dir_rev = true;
 
         int pac_off = dir_rev ? 20 : 0 ;
         int red_off = dir_rev ? 0 : 20;
 
         image[count]->drawImage(matrix_,red_off + pos,0);
+	image[count]->drawImage(matrix_,25,16);
+	image[count]->drawImage(matrix_,43,16);
+	image[count]->drawImage(matrix_,62,16);
         if(dir_rev)
         pac_l[pac_image]->drawImage(matrix_,pac_off + pos,0);
         else

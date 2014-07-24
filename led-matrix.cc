@@ -218,7 +218,7 @@ void RGBMatrix::drawPixel(int16_t x, int16_t y, uint16_t c) {
     //SetPixel(x,y,r ,g,b );
 }
 
-void RGBMatrix::SetPixel(uint8_t x, uint8_t y, uint8_t red, uint8_t green, uint8_t blue)
+void RGBMatrix::SetPixel(int x, int y, uint8_t red, uint8_t green, uint8_t blue)
 {
 
     // here we calc the rotation
@@ -240,16 +240,16 @@ void RGBMatrix::SetPixel(uint8_t x, uint8_t y, uint8_t red, uint8_t green, uint8
     internalSetPixel(x,y,red,green,blue);
 }
 
-void RGBMatrix::internalSetPixel(uint8_t x, uint8_t y, uint8_t red, uint8_t green, uint8_t blue) 
+void RGBMatrix::internalSetPixel(int x, int y, uint8_t red, uint8_t green, uint8_t blue) 
 {
-    if (x >= displayWidth() || y >= displayHeight()) return;
+    if (x < 0 || x >= displayWidth() || y < 0 || y >= displayHeight()) return;
     // My setup: A single panel connected  [>] 16 rows & 32 columns.
     uint8_t coord_x = x;
     uint8_t coord_y = y;
     if(panelSetup == LeftToRightHalfUpToDown)
     {
         int halfChainedPanel = kChainedBoards /2;
-        if(coord_y >= kPanelRows)
+        if(coord_y >= kPanelRows )
         {
             coord_y = (y % kPanelRows);
             coord_x = (halfChainedPanel * kPanelColumns) + x;

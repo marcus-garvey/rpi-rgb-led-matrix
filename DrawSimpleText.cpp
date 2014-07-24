@@ -11,7 +11,7 @@ void DrawSimpleText::Run() {
     };
     int16_t ballcolor[] = {matrix_->Color888(255,0,0),matrix_->Color888(0,255,0),matrix_->Color888(0,0,255)};
 
-    matrix_->setTextSize(2);
+    matrix_->setTextSize(4);
     matrix_->setTextWrap(false);
     int move = width;
     int r = 255;
@@ -47,7 +47,7 @@ void DrawSimpleText::Run() {
         matrix_->setTextColor(matrix_->Color888(r,g,b));
         matrix_->setCursor(move, 1);
         matrix_->write(text);
-        if(--move < (-12 * 14)) move = width;
+        if(--move < (-32 * 14)) move = width;
 
         //r += 1;
         //g += 2;

@@ -63,6 +63,10 @@ void PPMImage::drawImage(RGBMatrix* matrix,int pos_x , int pos_y)
         for (int y = 0; y < height_; ++y) {
             
             const Pixel &p = getPixel(x, y);
+	    
+	    if(p.red == 255 && p.green ==0 && p.blue == 255) continue;
+
+
             matrix->SetPixel(pos_x + x, pos_y +y, p.red, p.green, p.blue);
         }
     }
